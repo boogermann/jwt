@@ -12,11 +12,13 @@ namespace Lcobucci\JWT\FunctionalTests;
 use Lcobucci\Jose\Parsing\Parser;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Keys;
+use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Ecdsa\Sha512;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Storage\Signature;
 use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
 
 /**
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
@@ -48,6 +50,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -75,6 +78,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -100,6 +104,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -140,6 +145,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Ecdsa
      * @covers \Lcobucci\JWT\Signer\Ecdsa\KeyParser
@@ -159,10 +165,13 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      *
      * @depends builderCanGenerateAToken
      *
+     * @expectedException \Lcobucci\JWT\Validation\InvalidTokenException
+     *
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -170,12 +179,19 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Signer\Ecdsa\EccAdapter
      * @covers \Lcobucci\JWT\Signer\Ecdsa\SignatureSerializer
      * @covers \Lcobucci\JWT\Signer\Ecdsa\Sha256
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\InvalidTokenException
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function verifyShouldReturnFalseWhenKeyIsNotRight(Token $token)
+    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotRight(Token $token)
     {
-        $this->markTestIncomplete('Validation API refactor');
-
-        self::assertFalse($token->verify($this->config->getSigner(), static::$ecdsaKeys['public2']));
+        $this->config->getValidator()->validate(
+            $token,
+            new SignedWith(
+                $this->config->getSigner(),
+                self::$ecdsaKeys['public2']
+            )
+        );
     }
 
     /**
@@ -183,10 +199,13 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      *
      * @depends builderCanGenerateAToken
      *
+     * @expectedException \Lcobucci\JWT\Validation\InvalidTokenException
+     *
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -195,12 +214,19 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Signer\Ecdsa\SignatureSerializer
      * @covers \Lcobucci\JWT\Signer\Ecdsa\Sha256
      * @covers \Lcobucci\JWT\Signer\Ecdsa\Sha512
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\InvalidTokenException
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function verifyShouldReturnFalseWhenAlgorithmIsDifferent(Token $token)
+    public function signatureValidationShouldRaiseExceptionWhenAlgorithmIsDifferent(Token $token)
     {
-        $this->markTestIncomplete('Validation API refactor');
-
-        self::assertFalse($token->verify(Sha512::create(), static::$ecdsaKeys['public1']));
+        $this->config->getValidator()->validate(
+            $token,
+            new SignedWith(
+                Sha512::create(),
+                self::$ecdsaKeys['public1']
+            )
+        );
     }
 
     /**
@@ -208,12 +234,15 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      *
      * @expectedException \RuntimeException
      *
+     * @expectedException \Lcobucci\JWT\Validation\InvalidTokenException
+     *
      * @depends builderCanGenerateAToken
      *
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -221,12 +250,16 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Signer\Ecdsa\EccAdapter
      * @covers \Lcobucci\JWT\Signer\Ecdsa\SignatureSerializer
      * @covers \Lcobucci\JWT\Signer\Ecdsa\Sha256
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\InvalidTokenException
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function verifyShouldRaiseExceptionWhenKeyIsNotEcdsaCompatible(Token $token)
+    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotEcdsaCompatible(Token $token)
     {
-        $this->markTestIncomplete('Validation API refactor');
-
-        self::assertFalse($token->verify($this->config->getSigner(), static::$rsaKeys['public']));
+        $this->config->getValidator()->validate(
+            $token,
+            new SignedWith($this->config->getSigner(), self::$rsaKeys['public'])
+        );
     }
 
     /**
@@ -238,6 +271,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -245,12 +279,17 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Signer\Ecdsa\EccAdapter
      * @covers \Lcobucci\JWT\Signer\Ecdsa\SignatureSerializer
      * @covers \Lcobucci\JWT\Signer\Ecdsa\Sha256
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function verifyShouldReturnTrueWhenKeyIsRight(Token $token)
+    public function signatureValidationShouldSucceedWhenKeyIsRight(Token $token)
     {
-        $this->markTestIncomplete('Validation API refactor');
+        $constraint = new SignedWith(
+            $this->config->getSigner(),
+            static::$ecdsaKeys['public1']
+        );
 
-        self::assertTrue($token->verify($this->config->getSigner(), static::$ecdsaKeys['public1']));
+        self::assertNull($this->config->getValidator()->validate($token, $constraint));
     }
 
     /**
@@ -259,6 +298,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -266,11 +306,11 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Signer\Ecdsa\EccAdapter
      * @covers \Lcobucci\JWT\Signer\Ecdsa\SignatureSerializer
      * @covers \Lcobucci\JWT\Signer\Ecdsa\Sha256
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
     public function everythingShouldWorkWithAKeyWithParams()
     {
-        $this->markTestIncomplete('Validation API refactor');
-
         $builder = $this->config->createBuilder();
         $signer = $this->config->getSigner();
 
@@ -282,7 +322,12 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
                          ->sign($signer, static::$ecdsaKeys['private-params'])
                          ->getToken();
 
-        self::assertTrue($token->verify($signer, static::$ecdsaKeys['public-params']));
+        $constraint = new SignedWith(
+            $this->config->getSigner(),
+            static::$ecdsaKeys['public-params']
+        );
+
+        self::assertNull($this->config->getValidator()->validate($token, $constraint));
     }
 
     /**
@@ -292,6 +337,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -299,11 +345,11 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Signer\Ecdsa\EccAdapter
      * @covers \Lcobucci\JWT\Signer\Ecdsa\SignatureSerializer
      * @covers \Lcobucci\JWT\Signer\Ecdsa\Sha512
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
     public function everythingShouldWorkWhenUsingATokenGeneratedByOtherLibs()
     {
-        $this->markTestIncomplete('Validation API refactor');
-
         $data = 'eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJoZWxsbyI6IndvcmxkIn0.'
                 . 'AQx1MqdTni6KuzfOoedg2-7NUiwe-b88SWbdmviz40GTwrM0Mybp1i1tVtm'
                 . 'TSQ91oEXGXBdtwsN6yalzP9J-sp2YATX_Tv4h-BednbdSvYxZsYnUoZ--ZU'
@@ -316,9 +362,10 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
                . 'mZudf1zCUZ8/4eodlHU=' . PHP_EOL
                . '-----END PUBLIC KEY-----';
 
-        $key = new Key($key);
         $token = $this->config->getParser()->parse((string) $data);
+        $constraint = new SignedWith(Sha512::create(), new Key($key));
 
+        self::assertNull($this->config->getValidator()->validate($token, $constraint));
         self::assertEquals('world', $token->claims()->get('hello'));
     }
 
@@ -329,6 +376,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Ecdsa
@@ -370,6 +418,13 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
 
         self::assertEquals('world', $token->claims()->get('hello'), 'The claim content should not be modified');
 
+        // Using the attackers signer should make things unsafe
+        $constraint = new SignedWith(new HS512(), $key);
+        $constraint->assert($token);
+
+        // But we know which Signer should be used so the attack fails
+        $constraint = new SignedWith(Sha512::create(), $key);
+        $constraint->assert($token);
     }
 
     /**

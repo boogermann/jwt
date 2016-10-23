@@ -11,11 +11,13 @@ namespace Lcobucci\JWT\FunctionalTests;
 
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Keys;
+use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Signer\Rsa\Sha512;
 use Lcobucci\JWT\Storage\Signature;
 use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
 
 /**
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
@@ -47,6 +49,7 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Rsa
@@ -71,6 +74,7 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Rsa
@@ -93,6 +97,7 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Rsa
@@ -129,6 +134,7 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      */
     public function parserCanReadAToken(Token $generated)
@@ -144,6 +150,8 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      *
      * @depends builderCanGenerateAToken
      *
+     * @expectedException \Lcobucci\JWT\Validation\InvalidTokenException
+     *
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
@@ -152,12 +160,15 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Rsa
      * @covers \Lcobucci\JWT\Signer\Rsa\Sha256
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function verifyShouldReturnFalseWhenKeyIsNotRight(Token $token)
+    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotRight(Token $token)
     {
-        $this->markTestIncomplete('Validation API refactor');
-
-        self::assertFalse($token->verify($this->config->getSigner(), self::$rsaKeys['encrypted-public']));
+        $this->config->getValidator()->validate(
+            $token,
+            new SignedWith($this->config->getSigner(), self::$rsaKeys['encrypted-public'])
+        );
     }
 
     /**
@@ -165,21 +176,28 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      *
      * @depends builderCanGenerateAToken
      *
+     * @expectedException \Lcobucci\JWT\Validation\InvalidTokenException
+     *
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Rsa
      * @covers \Lcobucci\JWT\Signer\Rsa\Sha256
      * @covers \Lcobucci\JWT\Signer\Rsa\Sha512
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\InvalidTokenException
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function verifyShouldReturnFalseWhenAlgorithmIsDifferent(Token $token)
+    public function signatureValidationShouldRaiseExceptionWhenAlgorithmIsDifferent(Token $token)
     {
-        $this->markTestIncomplete('Validation API refactor');
-
-        self::assertFalse($token->verify(new Sha512(), self::$rsaKeys['public']));
+        $this->config->getValidator()->validate(
+            $token,
+            new SignedWith(new Sha512(), self::$rsaKeys['public'])
+        );
     }
 
     /**
@@ -187,22 +205,32 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      *
      * @expectedException \InvalidArgumentException
      *
+     * @expectedException \Lcobucci\JWT\Validation\InvalidTokenException
+     *
      * @depends builderCanGenerateAToken
      *
      * @covers \Lcobucci\JWT\Configuration
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Rsa
      * @covers \Lcobucci\JWT\Signer\Rsa\Sha256
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\InvalidTokenException
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function verifyShouldRaiseExceptionWhenKeyIsNotRsaCompatible(Token $token)
+    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotRsaCompatible(Token $token)
     {
-        $this->markTestIncomplete('Validation API refactor');
-
-        self::assertFalse($token->verify($this->config->getSigner(), self::$ecdsaKeys['public1']));
+        $this->config->getValidator()->validate(
+            $token,
+            new SignedWith(
+                $this->config->getSigner(),
+                self::$ecdsaKeys['public1']
+            )
+        );
     }
 
     /**
@@ -214,16 +242,19 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Rsa
      * @covers \Lcobucci\JWT\Signer\Rsa\Sha256
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function verifyShouldReturnTrueWhenKeyIsRight(Token $token)
+    public function signatureValidationShouldSucceedWhenKeyIsRight(Token $token)
     {
-        $this->markTestIncomplete('Validation API refactor');
+        $constraint = new SignedWith($this->config->getSigner(), self::$rsaKeys['public']);
 
-        self::assertTrue($token->verify($this->config->getSigner(), self::$rsaKeys['public']));
+        self::assertNull($this->config->getValidator()->validate($token, $constraint));
     }
 
     /**
@@ -233,15 +264,16 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Builder
      * @covers \Lcobucci\JWT\Storage\Parser
      * @covers \Lcobucci\JWT\Storage\Token
+     * @covers \Lcobucci\JWT\Storage\DataSet
      * @covers \Lcobucci\JWT\Storage\Signature
      * @covers \Lcobucci\JWT\Signer\Key
      * @covers \Lcobucci\JWT\Signer\Rsa
      * @covers \Lcobucci\JWT\Signer\Rsa\Sha256
+     * @covers \Lcobucci\JWT\Validation\Validator
+     * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
     public function everythingShouldWorkWhenUsingATokenGeneratedByOtherLibs()
     {
-        $this->markTestIncomplete('Validation API refactor');
-
         $data = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyJ9.eyJoZWxsbyI6IndvcmxkIn0.s'
                 . 'GYbB1KrmnESNfJ4D9hOe1Zad_BMyxdb8G4p4LNP7StYlOyBWck6q7XPpPj_6gB'
                 . 'Bo1ohD3MA2o0HY42lNIrAStaVhfsFKGdIou8TarwMGZBPcif_3ThUV1pGS3fZc'
@@ -250,8 +282,9 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
                 . '98ljwDxwhfbSuL2tAdbV4DekbTpWzspe3dOJ7RSzmPKVZ6NoezaIazKqyqkmHZfcMaHI1lQeGia6LTbHU1bp0gINi74Vw';
 
         $token = $this->config->getParser()->parse((string) $data);
+        $constraint = new SignedWith($this->config->getSigner(), self::$rsaKeys['public']);
 
+        self::assertNull($this->config->getValidator()->validate($token, $constraint));
         self::assertEquals('world', $token->claims()->get('hello'));
-        self::assertTrue($token->verify($this->config->getSigner(), self::$rsaKeys['public']));
     }
 }
