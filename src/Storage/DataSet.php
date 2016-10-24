@@ -24,12 +24,12 @@ final class DataSet
     /**
      * @var string
      */
-    private $payload;
+    private $encoded;
 
-    public function __construct(array $data, string $payload)
+    public function __construct(array $data, string $encoded)
     {
         $this->data = $data;
-        $this->payload = $payload;
+        $this->encoded = $encoded;
     }
 
     public function get(string $name, $default = null)
@@ -49,6 +49,6 @@ final class DataSet
 
     public function __toString(): string
     {
-        return $this->payload;
+        return $this->encoded;
     }
 }

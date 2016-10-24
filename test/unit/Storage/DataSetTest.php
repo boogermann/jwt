@@ -100,7 +100,7 @@ final class DataSetTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\DataSet::__construct
      * @covers \Lcobucci\JWT\Storage\DataSet::__toString
      */
-    public function toStringShouldReturnTheConfiguredPayload()
+    public function toStringShouldReturnTheEncodedData()
     {
         $set = new DataSet(['one' => 1], 'one=1');
 

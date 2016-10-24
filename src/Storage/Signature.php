@@ -25,12 +25,12 @@ final class Signature
     /**
      * @var string
      */
-    private $payload;
+    private $encoded;
 
-    public function __construct(string $hash, string $payload)
+    public function __construct(string $hash, string $encoded)
     {
         $this->hash = $hash;
-        $this->payload = $payload;
+        $this->encoded = $encoded;
     }
 
     public function hash(): string
@@ -39,10 +39,10 @@ final class Signature
     }
 
     /**
-     * Returns the signature payload as a string representation of the signature
+     * Returns the encoded version of the signature
      */
     public function __toString(): string
     {
-        return $this->payload;
+        return $this->encoded;
     }
 }

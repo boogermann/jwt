@@ -19,25 +19,11 @@ class SignatureTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @covers \Lcobucci\JWT\Storage\Signature::__construct
-     */
-    public function constructorMustConfigureAttributes()
-    {
-        $signature = new Signature('test', 'payload');
-
-        self::assertAttributeEquals('test', 'hash', $signature);
-        self::assertAttributeEquals('payload', 'payload', $signature);
-    }
-
-    /**
-     * @test
-     *
-     * @uses \Lcobucci\JWT\Storage\Signature::__construct
-     *
      * @covers \Lcobucci\JWT\Storage\Signature::hash
      */
-    public function hashShouldReturnTheSignatureHash()
+    public function hashShouldReturnTheHash()
     {
-        $signature = new Signature('test', 'payload');
+        $signature = new Signature('test', 'encoded');
 
         self::assertEquals('test', $signature->hash());
     }
@@ -45,14 +31,13 @@ class SignatureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      *
-     * @uses \Lcobucci\JWT\Storage\Signature::__construct
-     *
+     * @covers \Lcobucci\JWT\Storage\Signature::__construct
      * @covers \Lcobucci\JWT\Storage\Signature::__toString
      */
-    public function toStringMustReturnTheSignaturePayload()
+    public function toStringMustReturnTheEncodedData()
     {
-        $signature = new Signature('test', 'payload');
+        $signature = new Signature('test', 'encoded');
 
-        self::assertEquals('payload', (string) $signature);
+        self::assertEquals('encoded', (string) $signature);
     }
 }
