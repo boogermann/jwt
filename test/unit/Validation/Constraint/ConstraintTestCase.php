@@ -19,10 +19,13 @@ abstract class ConstraintTestCase extends \PHPUnit_Framework_TestCase
         array $headers = [],
         Signature $signature = null
     ): TokenInterface {
-        return new Token(
-            new DataSet($headers, ''),
-            new DataSet($claims, ''),
-            $signature
-        );
+        $headers = new DataSet($headers, '');
+        $claims = new DataSet($claims, '');
+
+        if ($signature) {
+            return Token::signed($headers, $claims, $signature);
+        }
+
+        return Token::unsecured($headers, $claims);
     }
 }

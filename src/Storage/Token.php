@@ -42,14 +42,20 @@ final class Token implements TokenInterface
      */
     private $signature;
 
-    /**
-     * Initializes the object
-     *
-     * @param DataSet $headers
-     * @param DataSet $claims
-     * @param Signature|null $signature
-     */
-    public function __construct(
+    public static function unsecured(DataSet $headers, DataSet $claims): self
+    {
+        return new self($headers, $claims);
+    }
+
+    public static function signed(
+        DataSet $headers,
+        DataSet $claims,
+        Signature $signature
+    ): self {
+        return new self($headers, $claims, $signature);
+    }
+
+    private function __construct(
         DataSet $headers,
         DataSet $claims,
         Signature $signature = null

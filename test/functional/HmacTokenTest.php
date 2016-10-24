@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Lcobucci\JWT\FunctionalTests;
 
 use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Hmac\Sha512;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Storage\Signature;
@@ -58,8 +57,7 @@ class HmacTokenTest extends \PHPUnit_Framework_TestCase
                          ->issuedBy('http://api.abc.com')
                          ->with('user', $user)
                          ->withHeader('jki', '1234')
-                         ->sign($this->config->getSigner(), new Key('testing'))
-                         ->getToken();
+                         ->getToken($this->config->getSigner(), new Key('testing'));
 
         self::assertAttributeInstanceOf(Signature::class, 'signature', $token);
         self::assertEquals('1234', $token->headers()->get('jki'));

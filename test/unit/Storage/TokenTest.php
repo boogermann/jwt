@@ -42,10 +42,11 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @uses \Lcobucci\JWT\Storage\DataSet
      *
      * @covers \Lcobucci\JWT\Storage\Token::__construct
+     * @covers \Lcobucci\JWT\Storage\Token::unsecured
      */
-    public function constructMustInitializeAnEmptyPlainTextTokenWhenNoArgumentsArePassed()
+    public function unsecuredShouldCreateATokenWithoutSignature()
     {
-        $token = new Token($this->headers, $this->claims);
+        $token = Token::unsecured($this->headers, $this->claims);
 
         self::assertAttributeSame($this->headers, 'headers', $token);
         self::assertAttributeSame($this->claims, 'claims', $token);
@@ -55,14 +56,34 @@ class TokenTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      *
+     * @uses \Lcobucci\JWT\Storage\DataSet
+     * @uses \Lcobucci\JWT\Storage\Signature
+     *
+     * @covers \Lcobucci\JWT\Storage\Token::__construct
+     * @covers \Lcobucci\JWT\Storage\Token::signed
+     */
+    public function signedShouldCreateATokenWithSignature()
+    {
+        $signature = new Signature('hash', 'signature');
+        $token = Token::signed($this->headers, $this->claims, $signature);
+
+        self::assertAttributeSame($this->headers, 'headers', $token);
+        self::assertAttributeSame($this->claims, 'claims', $token);
+        self::assertAttributeSame($signature, 'signature', $token);
+    }
+
+    /**
+     * @test
+     *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\DataSet
      *
      * @covers \Lcobucci\JWT\Storage\Token::headers
      */
     public function headersMustReturnTheConfiguredDataSet()
     {
-        $token = new Token($this->headers, $this->claims);
+        $token = Token::unsecured($this->headers, $this->claims);
 
         self::assertSame($this->headers, $token->headers());
     }
@@ -71,13 +92,14 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\DataSet
      *
      * @covers \Lcobucci\JWT\Storage\Token::claims
      */
     public function claimsMustReturnTheConfiguredClaims()
     {
-        $token = new Token($this->headers, $this->claims);
+        $token = Token::unsecured($this->headers, $this->claims);
 
         self::assertSame($this->claims, $token->claims());
     }
@@ -88,12 +110,13 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Token::isExpired
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\Token::claims
      * @uses \Lcobucci\JWT\Storage\DataSet
      */
     public function isExpiredShouldReturnFalseWhenTokenDoesNotExpires()
     {
-        $token = new Token($this->headers, $this->claims);
+        $token = Token::unsecured($this->headers, $this->claims);
 
         self::assertFalse($token->isExpired());
     }
@@ -104,12 +127,13 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Token::isExpired
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\Token::claims
      * @uses \Lcobucci\JWT\Storage\DataSet
      */
     public function isExpiredShouldReturnFalseWhenTokenIsNotExpired()
     {
-        $token = new Token(
+        $token = Token::unsecured(
             $this->headers,
             new DataSet(['exp' => time() + 500], '')
         );
@@ -123,13 +147,14 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Token::isExpired
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\Token::claims
      * @uses \Lcobucci\JWT\Storage\DataSet
      */
     public function isExpiredShouldReturnFalseWhenExpirationIsEqualsToNow()
     {
         $now = new DateTime();
-        $token = new Token(
+        $token = Token::unsecured(
             $this->headers,
             new DataSet(['exp' => $now->getTimestamp()], '')
         );
@@ -143,12 +168,13 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Storage\Token::isExpired
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\Token::claims
      * @uses \Lcobucci\JWT\Storage\DataSet
      */
     public function isExpiredShouldReturnTrueAfterTokenExpires()
     {
-        $token = new Token(
+        $token = Token::unsecured(
             $this->headers,
             new DataSet(['exp' => time()], '')
         );
@@ -160,13 +186,14 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\DataSet
      *
      * @covers \Lcobucci\JWT\Storage\Token::payload
      */
     public function payloadShouldReturnAStringWithTheEncodedHeadersAndClaims()
     {
-        $token = new Token($this->headers, $this->claims);
+        $token = Token::unsecured($this->headers, $this->claims);
 
         self::assertEquals('headers.claims', $token->payload());
     }
@@ -175,13 +202,14 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\DataSet
      *
      * @covers \Lcobucci\JWT\Storage\Token::signature
      */
     public function signatureShouldReturnNullWhenSignatureIsNotConfigured()
     {
-        $token = new Token($this->headers, $this->claims);
+        $token = Token::unsecured($this->headers, $this->claims);
 
         self::assertNull($token->signature());
     }
@@ -190,6 +218,7 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::signed
      * @uses \Lcobucci\JWT\Storage\DataSet
      * @uses \Lcobucci\JWT\Storage\Signature
      *
@@ -198,7 +227,7 @@ class TokenTest extends \PHPUnit_Framework_TestCase
     public function signatureShouldReturnTheConfiguredSignature()
     {
         $signature = new Signature('hash', 'signature');
-        $token = new Token($this->headers, $this->claims, $signature);
+        $token = Token::signed($this->headers, $this->claims, $signature);
 
         self::assertSame($signature, $token->signature());
     }
@@ -208,13 +237,14 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
      * @uses \Lcobucci\JWT\Storage\Token::payload
+     * @uses \Lcobucci\JWT\Storage\Token::unsecured
      * @uses \Lcobucci\JWT\Storage\DataSet
      *
      * @covers \Lcobucci\JWT\Storage\Token::__toString
      */
     public function toStringMustReturnEncodedDataWithEmptySignature()
     {
-        $token = new Token($this->headers, $this->claims);
+        $token = Token::unsecured($this->headers, $this->claims);
 
         self::assertEquals('headers.claims.', (string) $token);
     }
@@ -223,6 +253,7 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @uses \Lcobucci\JWT\Storage\Token::__construct
+     * @uses \Lcobucci\JWT\Storage\Token::signed
      * @uses \Lcobucci\JWT\Storage\DataSet
      * @uses \Lcobucci\JWT\Storage\Signature
      *
@@ -230,7 +261,7 @@ class TokenTest extends \PHPUnit_Framework_TestCase
      */
     public function toStringMustReturnEncodedData()
     {
-        $token = new Token(
+        $token = Token::signed(
             $this->headers,
             $this->claims,
             new Signature('hash', 'signature')
