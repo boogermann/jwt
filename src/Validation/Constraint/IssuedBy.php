@@ -35,10 +35,7 @@ final class IssuedBy implements Constraint
      */
     public function assert(Token $token)
     {
-        $claimSet = $token->claims();
-
-        if (!$claimSet->has('iss')
-            || !in_array($token->claims()->get('iss'), $this->issuers, true)) {
+        if (!in_array($token->claims()->get('iss'), $this->issuers, true)) {
             throw new ConstraintViolationException(
                 'The token was not issued by the given issuers'
             );

@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace Lcobucci\JWT\Storage;
 
-use OutOfBoundsException;
-
 /**
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  *
@@ -36,15 +34,7 @@ final class DataSet
 
     public function get(string $name, $default = null)
     {
-        if ($this->has($name)) {
-            return $this->data[$name];
-        }
-
-        if ($default === null) {
-            throw new OutOfBoundsException();
-        }
-
-        return $default;
+        return $this->data[$name] ?? $default;
     }
 
     public function has(string $name): bool

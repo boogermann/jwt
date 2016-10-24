@@ -42,17 +42,16 @@ final class DataSetTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      *
-     * @expectedException \OutOfBoundsException
-     *
      * @covers \Lcobucci\JWT\Storage\DataSet::__construct
      * @covers \Lcobucci\JWT\Storage\DataSet::get
      *
      * @uses \Lcobucci\JWT\Storage\DataSet::has
      */
-    public function getShouldRaiseExceptionWhenFallbackValueWasNotGiven()
+    public function getShouldReturnNullWhenFallbackValueWasNotGiven()
     {
         $set = new DataSet(['one' => 1], 'one=1');
-        $set->get('two');
+
+        self::assertNull($set->get('two'));
     }
 
     /**

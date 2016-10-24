@@ -47,7 +47,7 @@ final class SignedWith implements Constraint
             throw new ConstraintViolationException('The token is not signed');
         }
 
-        if ($token->headers()->get('alg', 'invalid') !== $this->signer->getAlgorithmId()) {
+        if ($token->headers()->get('alg') !== $this->signer->getAlgorithmId()) {
             throw new ConstraintViolationException('Token signer mismatch');
         }
 

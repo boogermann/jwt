@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Lcobucci\JWT\Validation\Constraint;
 
 use DateTimeInterface;
-use Lcobucci\JWT\Storage\DataSet;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\ConstraintViolationException;
@@ -39,10 +38,13 @@ final class ValidAt implements Constraint
         $claimSet = $token->claims();
 
         $this->assertExpiration($token);
-        $this->assertBeforeThanNow($claimSet, 'nbf', 'The token cannot be used yet');
-        $this->assertBeforeThanNow($claimSet, 'iat', 'The token was issued in the future');
+        $this->assertBeforeThanNow($claimSet->get('nbf'), 'The token cannot be used yet');
+        $this->assertBeforeThanNow($claimSet->get('iat'), 'The token was issued in the future');
     }
 
+    /**
+     * @throws ConstraintViolationException
+     */
     private function assertExpiration(Token $token)
     {
         if ($token->isExpired($this->now)) {
@@ -50,12 +52,12 @@ final class ValidAt implements Constraint
         }
     }
 
-    private function assertBeforeThanNow(
-        DataSet $claims,
-        string $claimName,
-        string $message
-    ) {
-        if ($claims->has($claimName) && $claims->get($claimName) > $this->now->getTimestamp()) {
+    /**
+     * @throws ConstraintViolationException
+     */
+    private function assertBeforeThanNow(int $claim = null, string $message)
+    {
+        if ($claim > $this->now->getTimestamp()) {
             throw new ConstraintViolationException($message);
         }
     }

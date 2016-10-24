@@ -32,9 +32,7 @@ final class IdentifiedBy implements Constraint
      */
     public function assert(Token $token)
     {
-        $claimSet = $token->claims();
-
-        if (!$claimSet->has('jti') || $claimSet->get('jti') !== $this->id) {
+        if ($token->claims()->get('jti') !== $this->id) {
             throw new ConstraintViolationException(
                 'The token is not identified with the expected ID'
             );

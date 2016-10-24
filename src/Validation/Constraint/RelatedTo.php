@@ -32,11 +32,9 @@ final class RelatedTo implements Constraint
      */
     public function assert(Token $token)
     {
-        $claimSet = $token->claims();
-
-        if (!$claimSet->has('sub') || $claimSet->get('sub') !== $this->subject) {
+        if ($token->claims()->get('sub') !== $this->subject) {
             throw new ConstraintViolationException(
-                'The token is not identified by the expected ID'
+                'The token is not related to the expected subject'
             );
         }
     }

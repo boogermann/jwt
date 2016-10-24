@@ -72,8 +72,25 @@ final class AllowedToTest extends ConstraintTestCase
     public function assertShouldNotRaiseExceptionWhenAudienceMatches()
     {
         $token = $this->buildToken(['aud' => ['aa.com', 'test.com']]);
-
         $constraint = new AllowedTo('test.com');
+
+        self::assertNull($constraint->assert($token));
+    }
+
+    /**
+     * @test
+     *
+     * @covers \Lcobucci\JWT\Validation\Constraint\AllowedTo::__construct
+     * @covers \Lcobucci\JWT\Validation\Constraint\AllowedTo::assert
+     *
+     * @uses \Lcobucci\JWT\Storage\DataSet
+     * @uses \Lcobucci\JWT\Storage\Token
+     */
+    public function assertShouldNotRaiseExceptionWhenAudienceMatchesAsString()
+    {
+        $token = $this->buildToken(['aud' => 'test.com']);
+        $constraint = new AllowedTo('test.com');
+
         self::assertNull($constraint->assert($token));
     }
 }

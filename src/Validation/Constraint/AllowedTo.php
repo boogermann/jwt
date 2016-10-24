@@ -35,7 +35,7 @@ final class AllowedTo implements Constraint
      */
     public function assert(Token $token)
     {
-        if (!in_array($this->audience, $token->claims()->get('aud', []), true)) {
+        if (!in_array($this->audience, (array) $token->claims()->get('aud'), true)) {
             throw new ConstraintViolationException(
                 'The token is not allowed to be used by this audience'
             );
