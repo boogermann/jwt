@@ -26,7 +26,7 @@ final class Validator implements \Lcobucci\JWT\Validator
         $violations = [];
 
         foreach ($constraints as $constraint) {
-            $violations = $this->assert($violations, $constraint, $token);
+            $this->assert($constraint, $token, $violations);
         }
 
         if ($violations) {
@@ -35,16 +35,14 @@ final class Validator implements \Lcobucci\JWT\Validator
     }
 
     private function assert(
-        array $violations,
         Constraint $constraint,
-        Token $token
-    ): array {
+        Token $token,
+        array &$violations
+    ) {
         try {
             $constraint->assert($token);
         } catch (ConstraintViolationException $e) {
             $violations[] = $e;
         }
-
-        return $violations;
     }
 }
