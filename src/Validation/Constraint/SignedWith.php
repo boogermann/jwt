@@ -43,7 +43,7 @@ final class SignedWith implements Constraint
     {
         $signature = $token->signature();
 
-        if ($signature === null) {
+        if (!$signature) {
             throw new ConstraintViolationException('The token is not signed');
         }
 
