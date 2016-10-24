@@ -15,7 +15,7 @@ use Lcobucci\JWT\Validation\InvalidTokenException;
 /**
  * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
  * @author Danny Dörfel <danny.dorfel@gmail.com>
- * @author Marco Piveta <ocramius@gmail.com>
+ * @author Marco Pivetta <ocramius@gmail.com>
  * @author Henrique Moody <henriquemoody@gmail.com>
  *
  * @since 4.0.0
