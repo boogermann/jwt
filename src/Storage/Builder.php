@@ -29,14 +29,14 @@ final class Builder implements BuilderInterface
      *
      * @var array
      */
-    private $headers;
+    private $headers = ['typ'=> 'JWT', 'alg' => 'none'];
 
     /**
      * The token claim set
      *
      * @var array
      */
-    private $claims;
+    private $claims = [];
 
     /**
      * The data encoder
@@ -51,8 +51,6 @@ final class Builder implements BuilderInterface
     public function __construct(Parsing\Encoder $encoder)
     {
         $this->encoder = $encoder;
-        $this->headers = ['typ'=> 'JWT', 'alg' => 'none'];
-        $this->claims = [];
     }
 
     /**
