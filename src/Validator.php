@@ -25,5 +25,7 @@ interface Validator
     /**
      * @throws InvalidTokenException
      */
-    public function validate(Token $token, Constraint ...$constraints);
+    public function assert(Token $token, Constraint ...$constraints);
+
+    public function validate(Token $token, Constraint ...$constraints): bool;
 }

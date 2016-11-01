@@ -108,9 +108,9 @@ class HmacTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\InvalidTokenException
      * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotRight(Token $token)
+    public function signatureAssertionShouldRaiseExceptionWhenKeyIsNotRight(Token $token)
     {
-        $this->config->getValidator()->validate(
+        $this->config->getValidator()->assert(
             $token,
             new SignedWith($this->config->getSigner(), new Key('testing1'))
         );
@@ -137,9 +137,9 @@ class HmacTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\InvalidTokenException
      * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function signatureValidationShouldRaiseExceptionWhenAlgorithmIsDifferent(Token $token)
+    public function signatureAssertionShouldRaiseExceptionWhenAlgorithmIsDifferent(Token $token)
     {
-        $this->config->getValidator()->validate(
+        $this->config->getValidator()->assert(
             $token,
             new SignedWith(new Sha512(), new Key('testing'))
         );
@@ -166,7 +166,7 @@ class HmacTokenTest extends \PHPUnit_Framework_TestCase
     {
         $constraint = new SignedWith($this->config->getSigner(), new Key('testing'));
 
-        self::assertNull($this->config->getValidator()->validate($token, $constraint));
+        self::assertTrue($this->config->getValidator()->validate($token, $constraint));
     }
 
     /**
@@ -192,7 +192,7 @@ class HmacTokenTest extends \PHPUnit_Framework_TestCase
         $token = $this->config->getParser()->parse((string) $data);
         $constraint = new SignedWith($this->config->getSigner(), new Key('testing'));
 
-        self::assertNull($this->config->getValidator()->validate($token, $constraint));
+        self::assertTrue($this->config->getValidator()->validate($token, $constraint));
         self::assertEquals('world', $token->claims()->get('hello'));
     }
 }

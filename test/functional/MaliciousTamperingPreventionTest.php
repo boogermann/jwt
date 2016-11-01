@@ -82,17 +82,15 @@ final class MaliciousTamperingPreventionTest extends \PHPUnit_Framework_TestCase
 
         $validator = $this->config->getValidator();
 
-        try {
-            $validator->validate($token, new SignedWith(new HS512(), $key));
-            self::fail('Using the attackers signer should make things unsafe');
-        } catch (InvalidTokenException $exception) {
-        }
+        self::assertFalse(
+            $validator->validate($token, new SignedWith(new HS512(), $key)),
+            'Using the attackers signer should make things unsafe'
+        );
 
-        try {
-            $validator->validate($token, new SignedWith($this->config->getSigner(), $key));
-            self::fail('But we know which Signer should be used so the attack fails');
-        } catch (InvalidTokenException $exception) {
-        }
+        self::assertFalse(
+            $validator->validate($token, new SignedWith($this->config->getSigner(), $key)),
+            'But we know which Signer should be used so the attack fails'
+        );
     }
 
     /**

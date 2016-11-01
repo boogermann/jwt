@@ -161,9 +161,9 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\Validator
      * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotRight(Token $token)
+    public function signatureAssertionShouldRaiseExceptionWhenKeyIsNotRight(Token $token)
     {
-        $this->config->getValidator()->validate(
+        $this->config->getValidator()->assert(
             $token,
             new SignedWith($this->config->getSigner(), self::$rsaKeys['encrypted-public'])
         );
@@ -190,9 +190,9 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\InvalidTokenException
      * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function signatureValidationShouldRaiseExceptionWhenAlgorithmIsDifferent(Token $token)
+    public function signatureAssertionShouldRaiseExceptionWhenAlgorithmIsDifferent(Token $token)
     {
-        $this->config->getValidator()->validate(
+        $this->config->getValidator()->assert(
             $token,
             new SignedWith(new Sha512(), self::$rsaKeys['public'])
         );
@@ -220,9 +220,9 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\InvalidTokenException
      * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotRsaCompatible(Token $token)
+    public function signatureAssertionShouldRaiseExceptionWhenKeyIsNotRsaCompatible(Token $token)
     {
-        $this->config->getValidator()->validate(
+        $this->config->getValidator()->assert(
             $token,
             new SignedWith(
                 $this->config->getSigner(),
@@ -252,7 +252,7 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
     {
         $constraint = new SignedWith($this->config->getSigner(), self::$rsaKeys['public']);
 
-        self::assertNull($this->config->getValidator()->validate($token, $constraint));
+        self::assertTrue($this->config->getValidator()->validate($token, $constraint));
     }
 
     /**
@@ -282,7 +282,7 @@ class RsaTokenTest extends \PHPUnit_Framework_TestCase
         $token = $this->config->getParser()->parse((string) $data);
         $constraint = new SignedWith($this->config->getSigner(), self::$rsaKeys['public']);
 
-        self::assertNull($this->config->getValidator()->validate($token, $constraint));
+        self::assertTrue($this->config->getValidator()->validate($token, $constraint));
         self::assertEquals('world', $token->claims()->get('hello'));
     }
 }

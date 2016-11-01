@@ -180,9 +180,9 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\InvalidTokenException
      * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotRight(Token $token)
+    public function signatureAssertionShouldRaiseExceptionWhenKeyIsNotRight(Token $token)
     {
-        $this->config->getValidator()->validate(
+        $this->config->getValidator()->assert(
             $token,
             new SignedWith(
                 $this->config->getSigner(),
@@ -215,9 +215,9 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\InvalidTokenException
      * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function signatureValidationShouldRaiseExceptionWhenAlgorithmIsDifferent(Token $token)
+    public function signatureAssertionShouldRaiseExceptionWhenAlgorithmIsDifferent(Token $token)
     {
-        $this->config->getValidator()->validate(
+        $this->config->getValidator()->assert(
             $token,
             new SignedWith(
                 Sha512::create(),
@@ -251,9 +251,9 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\InvalidTokenException
      * @covers \Lcobucci\JWT\Validation\Constraint\SignedWith
      */
-    public function signatureValidationShouldRaiseExceptionWhenKeyIsNotEcdsaCompatible(Token $token)
+    public function signatureAssertionShouldRaiseExceptionWhenKeyIsNotEcdsaCompatible(Token $token)
     {
-        $this->config->getValidator()->validate(
+        $this->config->getValidator()->assert(
             $token,
             new SignedWith($this->config->getSigner(), self::$rsaKeys['public'])
         );
@@ -286,7 +286,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
             static::$ecdsaKeys['public1']
         );
 
-        self::assertNull($this->config->getValidator()->validate($token, $constraint));
+        self::assertTrue($this->config->getValidator()->validate($token, $constraint));
     }
 
     /**
@@ -323,7 +323,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
             static::$ecdsaKeys['public-params']
         );
 
-        self::assertNull($this->config->getValidator()->validate($token, $constraint));
+        self::assertTrue($this->config->getValidator()->validate($token, $constraint));
     }
 
     /**
@@ -361,7 +361,7 @@ class EcdsaTokenTest extends \PHPUnit_Framework_TestCase
         $token = $this->config->getParser()->parse((string) $data);
         $constraint = new SignedWith(Sha512::create(), new Key($key));
 
-        self::assertNull($this->config->getValidator()->validate($token, $constraint));
+        self::assertTrue($this->config->getValidator()->validate($token, $constraint));
         self::assertEquals('world', $token->claims()->get('hello'));
     }
 }

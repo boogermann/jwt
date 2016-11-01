@@ -112,7 +112,7 @@ class UnsignedTokenTest extends \PHPUnit_Framework_TestCase
             new ValidAt(new \DateTimeImmutable('@' . self::CURRENT_TIME))
         ];
 
-        self::assertNull($this->config->getValidator()->validate($generated, ...$constraints));
+        self::assertTrue($this->config->getValidator()->validate($generated, ...$constraints));
     }
 
     /**
@@ -129,7 +129,7 @@ class UnsignedTokenTest extends \PHPUnit_Framework_TestCase
      */
     public function tokenValidationShouldAllowCustomConstraint(Token $generated)
     {
-        self::assertNull($this->config->getValidator()->validate($generated, $this->validUserConstraint()));
+        self::assertTrue($this->config->getValidator()->validate($generated, $this->validUserConstraint()));
     }
 
     /**
@@ -149,14 +149,14 @@ class UnsignedTokenTest extends \PHPUnit_Framework_TestCase
      * @covers \Lcobucci\JWT\Validation\Constraint\IssuedBy
      * @covers \Lcobucci\JWT\Validation\Constraint\IdentifiedBy
      */
-    public function tokenValidationShouldRaiseExceptionWhenOneOfTheConstraintsFails(Token $generated)
+    public function tokenAssertionShouldRaiseExceptionWhenOneOfTheConstraintsFails(Token $generated)
     {
         $constraints = [
             new IdentifiedBy('1'),
             new IssuedBy('http://issuer.abc.com')
         ];
 
-        $this->config->getValidator()->validate($generated, ...$constraints);
+        $this->config->getValidator()->assert($generated, ...$constraints);
     }
 
     private function validUserConstraint(): Constraint

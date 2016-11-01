@@ -21,12 +21,12 @@ final class Validator implements \Lcobucci\JWT\Validator
     /**
      * {@inheritdoc}
      */
-    public function validate(Token $token, Constraint ...$constraints)
+    public function assert(Token $token, Constraint ...$constraints)
     {
         $violations = [];
 
         foreach ($constraints as $constraint) {
-            $this->assert($constraint, $token, $violations);
+            $this->checkConstraint($constraint, $token, $violations);
         }
 
         if ($violations) {
@@ -34,7 +34,7 @@ final class Validator implements \Lcobucci\JWT\Validator
         }
     }
 
-    private function assert(
+    private function checkConstraint(
         Constraint $constraint,
         Token $token,
         array &$violations
@@ -43,6 +43,19 @@ final class Validator implements \Lcobucci\JWT\Validator
             $constraint->assert($token);
         } catch (ConstraintViolationException $e) {
             $violations[] = $e;
+        }
+    }
+
+    public function validate(Token $token, Constraint ...$constraints): bool
+    {
+        try {
+            foreach ($constraints as $constraint) {
+                $constraint->assert($token);
+            }
+
+            return true;
+        } catch (ConstraintViolationException $e) {
+            return false;
         }
     }
 }

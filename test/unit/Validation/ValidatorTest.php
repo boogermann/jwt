@@ -29,12 +29,12 @@ final class ValidatorTest extends \PHPUnit_Framework_TestCase
      *
      * @expectedException \Lcobucci\JWT\Validation\InvalidTokenException
      *
-     * @covers \Lcobucci\JWT\Validation\Validator::validate
      * @covers \Lcobucci\JWT\Validation\Validator::assert
+     * @covers \Lcobucci\JWT\Validation\Validator::checkConstraint
      *
      * @uses \Lcobucci\JWT\Validation\InvalidTokenException
      */
-    public function validateShouldRaiseExceptionWhenAtLeastOneConstraintFails()
+    public function assertShouldRaiseExceptionWhenAtLeastOneConstraintFails()
     {
         $failedConstraint = $this->createMock(Constraint::class);
         $successfulConstraint = $this->createMock(Constraint::class);
@@ -48,7 +48,7 @@ final class ValidatorTest extends \PHPUnit_Framework_TestCase
 
         $validator = new Validator();
 
-        $validator->validate(
+        $validator->assert(
             $this->token,
             $failedConstraint,
             $successfulConstraint
@@ -58,15 +58,57 @@ final class ValidatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      *
-     * @covers \Lcobucci\JWT\Validation\Validator::validate
      * @covers \Lcobucci\JWT\Validation\Validator::assert
+     * @covers \Lcobucci\JWT\Validation\Validator::checkConstraint
      */
-    public function validateShouldNotRaiseExceptionWhenNoConstraintFails()
+    public function assertShouldNotRaiseExceptionWhenNoConstraintFails()
     {
         $constraint = $this->createMock(Constraint::class);
         $constraint->expects($this->once())->method('assert');
 
         $validator = new Validator();
-        self::assertNull($validator->validate($this->token, $constraint));
+        self::assertNull($validator->assert($this->token, $constraint));
+    }
+
+    /**
+     * @test
+     *
+     * @covers \Lcobucci\JWT\Validation\Validator::validate
+     */
+    public function validateShouldReturnFalseWhenAtLeastOneConstraintFails()
+    {
+        $failedConstraint = $this->createMock(Constraint::class);
+        $successfulConstraint = $this->createMock(Constraint::class);
+
+        $failedConstraint->expects($this->once())
+                         ->method('assert')
+                         ->willThrowException(new ConstraintViolationException());
+
+        $successfulConstraint->expects($this->never())
+                             ->method('assert');
+
+        $validator = new Validator();
+
+        self::assertFalse(
+            $validator->validate(
+                $this->token,
+                $failedConstraint,
+                $successfulConstraint
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @covers \Lcobucci\JWT\Validation\Validator::validate
+     */
+    public function validateShouldReturnTrueWhenNoConstraintFails()
+    {
+        $constraint = $this->createMock(Constraint::class);
+        $constraint->expects($this->once())->method('assert');
+
+        $validator = new Validator();
+        self::assertTrue($validator->validate($this->token, $constraint));
     }
 }
